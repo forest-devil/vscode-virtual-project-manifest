@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PackageManifest Version="2.0.0" xmlns="http://microsoft.com" xmlns:d="http://microsoft.com">
+<PackageManifest Version="2.0.1" xmlns="http://microsoft.com" xmlns:d="http://microsoft.com">
     <Metadata>
         
         <DisplayName>Virtual Project Manifest</DisplayName>
