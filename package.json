@@ -1,0 +1,93 @@
+{
+	"name": "virtual-project-manifest",
+	"displayName": "Virtual Project Manifest",
+	"description": "基于多个可放在任意位置的 MANIFEST.lst 定义虚拟子项目，聚焦子项目文件，以及全文合并用于LLM会话",
+	"version": "2.0.0",
+	"publisher": "forest-devil",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/forest-devil/vscode-virtual-project-manifest.git"
+	},
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.70.0"
+	},
+	"categories": [
+		"Programming Languages",
+		"AI",
+		"Visualization"
+	],
+	"keywords": [
+		"manifest",
+		"merge",
+		"LLM",
+		"focus",
+		"workspace"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "virtual-project-manifest.toggleFocusMode",
+				"title": "Virtual Project: 切换项目聚焦模式 (Focus)",
+				"icon": "$(visibility)"
+			},
+			{
+				"command": "virtual-project-manifest.mergeByManifest",
+				"title": "Virtual Project: 一键合并工程文件 (Merge)",
+				"icon": "$(combine)"
+			}
+		],
+		"menus": {
+			"editor/title": [
+				{
+					"command": "virtual-project-manifest.mergeByManifest",
+					"group": "navigation",
+					"when": "resourceFilename == MANIFEST.lst"
+				}
+			],
+			"explorer/context": [
+				{
+					"command": "virtual-project-manifest.mergeByManifest",
+					"group": "7_modification"
+				}
+			]
+		},
+		"configuration": {
+			"properties": {
+				"virtual-project-manifest.defaultTemplate": {
+					"type": "array",
+					"items": {
+						"type": "string"
+					},
+					"default": [
+						"# [Virtual Project Manifest]",
+						"# --------------------------",
+						"# 提示：标签（如 [doc]）具有继承性，后续行会自动复用上一个标签",
+						"",
+						"[doc]",
+						"README.md",
+						"docs/**/*.md",
+						"",
+						"[src]",
+						"src/**/*.js",
+						"src/**/*.ts",
+						"index.js",
+						"",
+						"# [var] 标签下的文件仅在文件树显示，【不会】被合并发送给 LLM",
+						"[var]",
+						".env.example",
+						"tests/",
+						"logs/*.log",
+						"MANIFEST.merged.md"
+					],
+					"description": "创建新的 MANIFEST.lst 时使用的默认模板内容"
+				}
+			}
+		}
+	},
+	"activationEvents": [
+		"onCommand:virtual-project-manifest.toggleFocusMode",
+		"onCommand:virtual-project-manifest.mergeByManifest"
+	],
+	"main": "./extension.js"
+}

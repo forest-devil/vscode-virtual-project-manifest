@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://microsoft.com" xmlns:d="http://microsoft.com">
+    <Metadata>
+        
+        <DisplayName>Virtual Project Manifest</DisplayName>
+        <Description xml:space="preserve">基于可放在任意位置的 MANIFEST.lst 定义虚拟子项目，聚焦子项目文件，以及全文合并用于LLM会话</Description>
+        <Tags>workspace,manifest,focus,concentration,LLM,AI,merge,combine</Tags>
+        <Categories>Programming Languages,AI,Visualization</Categories>
+        <GalleryFlags>Public</GalleryFlags>
+        <Badges></Badges>
+        <Properties>
+            <Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.70.0" />
+            <Property Id="Microsoft.VisualStudio.Code.ExtensionDependencies" Value="" />
+            <Property Id="Microsoft.VisualStudio.Code.ExtensionPack" Value="" />
+            <Property Id="Microsoft.VisualStudio.Code.ExtensionKind" Value="workspace" />
+        </Properties>
+        <Icon>extension/icon.png</Icon>
+    </Metadata>
+    <Installation>
+        <InstallationTarget Id="Microsoft.VisualStudio.Code" />
+    </Installation>
+    <Dependencies/>
+    <Assets>
+        <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json" Addressable="true" />
+        <Asset Type="Microsoft.VisualStudio.Internal.VsixManifest" Path="extension/.vsixmanifest" Addressable="true" />
+        <Asset Type="Microsoft.VisualStudio.Code.Content.README" Path="extension/README.md" Addressable="true" />
+        <Asset Type="Microsoft.VisualStudio.Code.Content.Icon" Path="extension/icon.png" Addressable="true" />
+		<Asset Type="Microsoft.VisualStudio.Services.Content.License" Path="extension/LICENSE.txt" Addressable="true" />
+    </Assets>
+</PackageManifest>
