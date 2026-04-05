@@ -5,6 +5,7 @@
     "version": "2.1.0",
     "main": "./extension.js",
     "repository": "github:forest-devil/vscode-virtual-project-manifest",
+    "publisher": "forest-devil",
     "engines": {
         "vscode": "^1.70.0"
     },
