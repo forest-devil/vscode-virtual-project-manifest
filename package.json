@@ -1,94 +1,93 @@
 {
-	"name": "virtual-project-manifest",
-	"displayName": "Virtual Project Manifest",
-	"description": "基于多个可放在任意位置的 MANIFEST.lst 定义虚拟子项目，聚焦子项目文件，以及全文合并用于LLM会话",
-	"version": "2.0.1",
-	"author": "forest-devil",
-	"publisher": "forest-devil",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/forest-devil/vscode-virtual-project-manifest.git"
-	},
-	"license": "MIT",
-	"engines": {
-		"vscode": "^1.70.0"
-	},
-	"categories": [
-		"Programming Languages",
-		"AI",
-		"Visualization"
-	],
-	"keywords": [
-		"manifest",
-		"merge",
-		"LLM",
-		"focus",
-		"workspace"
-	],
-	"contributes": {
-		"commands": [
-			{
-				"command": "virtual-project-manifest.toggleFocusMode",
-				"title": "Virtual Project: 切换项目聚焦模式 (Focus)",
-				"icon": "$(visibility)"
-			},
-			{
-				"command": "virtual-project-manifest.mergeByManifest",
-				"title": "Virtual Project: 一键合并工程文件 (Merge)",
-				"icon": "$(combine)"
-			}
-		],
-		"menus": {
-			"editor/title": [
-				{
-					"command": "virtual-project-manifest.mergeByManifest",
-					"group": "navigation",
-					"when": "resourceFilename == MANIFEST.lst"
-				}
-			],
-			"explorer/context": [
-				{
-					"command": "virtual-project-manifest.mergeByManifest",
-					"group": "7_modification"
-				}
-			]
-		},
-		"configuration": {
-			"properties": {
-				"virtual-project-manifest.defaultTemplate": {
-					"type": "array",
-					"items": {
-						"type": "string"
-					},
+    "name": "virtual-project-manifest",
+    "displayName": "Virtual Project Manifest",
+    "description": "基於 MANIFEST.lst 的虛擬項目視圖與工程合併工具",
+    "version": "2.1.0",
+    "main": "./extension.js",
+    "repository": "github:forest-devil/vscode-virtual-project-manifest",
+    "engines": {
+        "vscode": "^1.70.0"
+    },
+    "activationEvents": [
+        "onView:manifest-explorer",
+        "onCommand:virtual-project-manifest.mergeByManifest"
+    ],
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "virtual-project-container",
+                    "title": "Virtual Project",
+                    "icon": "$(list-tree)"
+                }
+            ]
+        },
+        "views": {
+            "virtual-project-container": [
+                {
+                    "id": "manifest-explorer",
+                    "name": "Project Focus"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "virtual-project-manifest.refreshEntry",
+                "title": "刷新虛擬視圖",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "virtual-project-manifest.mergeByManifest",
+                "title": "Virtual Project: 一鍵合併工程文件 (Merge)",
+                "icon": "$(combine)"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "virtual-project-manifest.refreshEntry",
+                    "group": "navigation",
+                    "when": "view == manifest-explorer"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "virtual-project-manifest.mergeByManifest",
+                    "group": "navigation",
+                    "when": "resourceFilename == MANIFEST.lst"
+                }
+            ]
+        },
+        "configuration": {
+            "properties": {
+                "virtual-project-manifest.defaultTemplate": {
+                    "type": "array",
 					"default": [
 						"# [Virtual Project Manifest]",
 						"# --------------------------",
-						"# 提示：标签（如 [doc]）具有继承性，后续行会自动复用上一个标签",
+						"# [标签] 具有继承性，直到遇到下一个 [标签] 为止。",
+						"# 提示：对于目录，应使用 /** 结尾以确保在虚拟视图中显示完整层级。",
 						"",
-						"[doc]",
+						"[doc] # 项目文档及指南",
 						"README.md",
-						"docs/**/*.md",
+						"docs/your-project/**/*.md",
 						"",
-						"[src]",
+						"[src] # 核心源代码",
+						"src/**/*.py",
 						"src/**/*.js",
-						"src/**/*.ts",
-						"index.js",
+						"assets/js/your-main-script.js",
 						"",
-						"# [var] 标签下的文件仅在文件树显示，【不会】被合并发送给 LLM",
-						"[var]",
-						".env.example",
-						"tests/",
-						"logs/*.log",
-						"MANIFEST.merged.md"
+						"[var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)",
+						"data/your-project/**",
+						"data/temp/your-project/**",
+						"assets/css/your-project/**",
+						"",
+						"# --------------------------",
+						"# 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。"
 					],
-					"description": "创建新的 MANIFEST.lst 时使用的默认模板内容"
-				}
-			}
-		}
-	},
-	"activationEvents": [
-		"onCommand:virtual-project-manifest.toggleFocusMode",
-		"onCommand:virtual-project-manifest.mergeByManifest"
-	],
-	"main": "./extension.js"
+                    "description": "創建新清單時的默認模板"
+                }
+            }
+        }
+    }
 }
