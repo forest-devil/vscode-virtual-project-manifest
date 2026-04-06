@@ -1,0 +1,8 @@
+{
+    "plugin.displayName": "Sub Project Focus",
+    "command.refresh": "Refresh View",
+    "command.merge": "Merge Files (LLM Ready)",
+    "command.add": "Add to Project Manifest",
+    "command.init": "Initialize Project Manifest",
+    "view.name": "Sub Project"
+}

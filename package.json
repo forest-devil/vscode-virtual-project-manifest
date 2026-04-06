@@ -1,94 +1,89 @@
 {
-    "name": "virtual-project-manifest",
-    "displayName": "Virtual Project Manifest",
-    "description": "基於 MANIFEST.lst 的虛擬項目視圖與工程合併工具",
-    "version": "2.1.0",
-    "main": "./extension.js",
-    "repository": "github:forest-devil/vscode-virtual-project-manifest",
-    "publisher": "forest-devil",
-    "engines": {
-        "vscode": "^1.70.0"
-    },
-    "activationEvents": [
-        "onView:manifest-explorer",
-        "onCommand:virtual-project-manifest.mergeByManifest"
-    ],
-    "contributes": {
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "virtual-project-container",
-                    "title": "Virtual Project",
-                    "icon": "$(list-tree)"
-                }
-            ]
-        },
-        "views": {
-            "virtual-project-container": [
-                {
-                    "id": "manifest-explorer",
-                    "name": "Project Focus"
-                }
-            ]
-        },
-        "commands": [
-            {
-                "command": "virtual-project-manifest.refreshEntry",
-                "title": "刷新虛擬視圖",
-                "icon": "$(refresh)"
-            },
-            {
-                "command": "virtual-project-manifest.mergeByManifest",
-                "title": "Virtual Project: 一鍵合併工程文件 (Merge)",
-                "icon": "$(combine)"
-            }
-        ],
-        "menus": {
-            "view/title": [
-                {
-                    "command": "virtual-project-manifest.refreshEntry",
-                    "group": "navigation",
-                    "when": "view == manifest-explorer"
-                }
-            ],
-            "editor/title": [
-                {
-                    "command": "virtual-project-manifest.mergeByManifest",
-                    "group": "navigation",
-                    "when": "resourceFilename == MANIFEST.lst"
-                }
-            ]
-        },
-        "configuration": {
-            "properties": {
-                "virtual-project-manifest.defaultTemplate": {
-                    "type": "array",
-					"default": [
-						"# [Virtual Project Manifest]",
-						"# --------------------------",
-						"# [标签] 具有继承性，直到遇到下一个 [标签] 为止。",
-						"# 提示：对于目录，应使用 /** 结尾以确保在虚拟视图中显示完整层级。",
-						"",
-						"[doc] # 项目文档及指南",
-						"README.md",
-						"docs/your-project/**/*.md",
-						"",
-						"[src] # 核心源代码",
-						"src/**/*.py",
-						"src/**/*.js",
-						"assets/js/your-main-script.js",
-						"",
-						"[var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)",
-						"data/your-project/**",
-						"data/temp/your-project/**",
-						"assets/css/your-project/**",
-						"",
-						"# --------------------------",
-						"# 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。"
-					],
-                    "description": "創建新清單時的默認模板"
-                }
-            }
-        }
-    }
+	"name": "virtual-project-manifest",
+	"displayName": "%plugin.displayName%",
+	"description": "A manifest-based virtual project view with transient file tracking and LLM-ready merging.",
+	"version": "3.1.2",
+	"publisher": "forest-devil",
+	"repository": "github:forst-devil/vscode-virtual-project-manifest",
+	"main": "./extension.js",
+	"engines": {
+		"vscode": "^1.70.0"
+	},
+	"activationEvents": [
+		"onView:manifest-explorer"
+	],
+	"contributes": {
+		"views": {
+			"explorer": [
+				{
+					"id": "manifest-explorer",
+					"name": "%view.name%",
+					"dragAndDropController": true
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "virtual-project-manifest.refresh",
+				"title": "%command.refresh%",
+				"icon": "$(refresh)"
+			},
+			{
+				"command": "virtual-project-manifest.merge",
+				"title": "%command.merge%",
+				"icon": "$(combine)"
+			},
+			{
+				"command": "virtual-project-manifest.add",
+				"title": "%command.add%",
+				"icon": "$(add)"
+			},
+			{
+				"command": "virtual-project-manifest.init",
+				"title": "%command.init%",
+				"icon": "$(file-add)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "virtual-project-manifest.refresh",
+					"group": "navigation@1",
+					"when": "view == manifest-explorer"
+				},
+				{
+					"command": "virtual-project-manifest.merge",
+					"group": "navigation@2",
+					"when": "view == manifest-explorer"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "virtual-project-manifest.add",
+					"when": "(viewItem == unmatchedFile || viewItem == unmatchedFolder)",
+					"group": "navigation@3"
+				}
+			]
+		},
+		"languages": [
+			{
+				"id": "ini",
+				"filenames": ["MANIFEST.lst"]
+			}
+		],
+		"configurationDefaults": {
+			"workbench.colorCustomizations": {
+				"sideBarSectionHeader.border": "#088080cc",
+				"sideBarSectionHeader.background": "#044040cc",
+				"sideBarSectionHeader.foreground": "#cccccccc",
+				"activityBar.border": "#ffffff22"
+			}
+		}
+
+	},
+	"__metadata": {
+		"installedTimestamp": 1775478375532,
+		"targetPlatform": "undefined",
+		"size": 59678
+	}
 }
