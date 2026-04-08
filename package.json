@@ -2,7 +2,7 @@
 	"name": "virtual-project-manifest",
 	"displayName": "%plugin.displayName%",
 	"description": "A manifest-based virtual project view with transient file tracking and LLM-ready merging.",
-	"version": "3.1.2",
+	"version": "3.1.3",
 	"publisher": "forest-devil",
 	"repository": "github:forst-devil/vscode-virtual-project-manifest",
 	"main": "./extension.js",
@@ -26,22 +26,26 @@
 			{
 				"command": "virtual-project-manifest.refresh",
 				"title": "%command.refresh%",
-				"icon": "$(refresh)"
+				"icon": "$(refresh)",
+				"category": "%view.name%"
 			},
 			{
 				"command": "virtual-project-manifest.merge",
 				"title": "%command.merge%",
-				"icon": "$(combine)"
+				"icon": "$(combine)",
+				"category": "%view.name%"
 			},
 			{
 				"command": "virtual-project-manifest.add",
 				"title": "%command.add%",
-				"icon": "$(add)"
+				"icon": "$(add)",
+				"category": "%view.name%"
 			},
 			{
 				"command": "virtual-project-manifest.init",
 				"title": "%command.init%",
-				"icon": "$(file-add)"
+				"icon": "$(file-add)",
+				"category": "%view.name%"
 			}
 		],
 		"menus": {
@@ -68,7 +72,9 @@
 		"languages": [
 			{
 				"id": "ini",
-				"filenames": ["MANIFEST.lst"]
+				"filenames": [
+					"MANIFEST.lst"
+				]
 			}
 		],
 		"configurationDefaults": {
@@ -79,5 +85,10 @@
 				"activityBar.border": "#ffffff22"
 			}
 		}
+	},
+	"__metadata": {
+		"installedTimestamp": 1775486955759,
+		"targetPlatform": "undefined",
+		"size": 58392
 	}
 }

@@ -58,7 +58,8 @@ const strings = {
             "data/your-project/**",
             "assets/css/your-project/**",
             "",
-            "# --------------------------"
+            "# --------------------------",
+            "# HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge"
         ].join('\n')
     }
 };
