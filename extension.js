@@ -2,65 +2,66 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 
-// --- 1. 多语言及模板配置 ---
+// 多语言（含文件模板）
 const lang = vscode.env.language;
 const strings = {
     'zh-cn': {
         'not_found': '未找到 MANIFEST.lst (点击初始化)',
-        'unmatched': '⚠️ 待收编',
+        'unmatched': '⚠️ 未收录',
         'tooltip': '不在清单中，合并时将被忽略',
         'add_ok': '已添加 {0} 到清单',
         'switched': '已切换到项目: {0}',
-        'template': [
-            "# [Virtual Project Manifest]",
-            "# --------------------------",
-            "# [标签] 具有继承性，直到遇到下一个 [标签] 为止。",
-            "# 提示：对于目录，应使用 /** 或 /**/* 结尾以确保在虚拟视图中显示完整层级。",
-            "",
-            "[doc] # 项目文档及指南",
-            "README.md",
-            "docs/your-project/**/*.md",
-            "",
-            "[src] # 核心源代码",
-            "src/**/*.py",
-            "src/**/*.js",
-            "assets/js/your-main-script.js",
-            "",
-            "[var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)",
-            "data/your-project/**",
-            "assets/css/your-project/**",
-            "",
-            "# --------------------------",
-            "# 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。"
-        ].join('\n')
+        'template': `# [Virtual Project Manifest]
+--------------------------
+# [标签] 具有继承性，直到遇到下一个 [标签] 为止。
+# 提示：对于目录，应使用 /** 或 /**/* 结尾以确保在虚拟视图中显示完整层级。
+
+[doc] # 项目文档及指南
+docs/your-project/README.md
+docs/your-project/**/*.md   # 其他文档排在最后
+
+[src] # 核心源代码
+src/your-project/*.py
+src/your-project/*.js
+assets/js/your-project/main.js
+assets/html/your-project/index.html
+
+[var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)
+data/your-project/**
+assets/css/your-project/style.css
+
+# --------------------------
+# 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。
+`
     },
     'en': {
         'not_found': 'MANIFEST.lst not found (Click to Init)',
-        'unmatched': '⚠️ To be tracked',
+        'unmatched': '⚠️ untracked',
         'tooltip': 'Not in manifest, ignored during merge',
         'add_ok': 'Added {0} to manifest',
         'switched': 'Switched to: {0}',
-        'template': [
-            "# [Virtual Project Manifest]",
-            "# --------------------------",
-            "# [Tag] labels are inherited until the next [Tag].",
-            "# Tip: Use /** or /**/* to ensure all items in directories are included.",
-            "",
-            "[doc] # Documentation",
-            "README.md",
-            "docs/your-project/**/*.md",
-            "",
-            "[src] # Source Code",
-            "src/**/*.py",
-            "src/**/*.js",
-            "",
-            "[var] # Static Assets (Tree only, excluded from Merge)",
-            "data/your-project/**",
-            "assets/css/your-project/**",
-            "",
-            "# --------------------------",
-            "# HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge"
-        ].join('\n')
+        'template': `# [Virtual Project Manifest]
+# --------------------------
+# [Tag] labels are inherited until the next [Tag].
+# Tip: Use /** or /**/* to ensure all items in directories are included.
+
+[doc] # Documentation
+README.md
+docs/your-project/**/*.md   # the rest docs go here
+
+[src] # Source Code
+src/your-project/*.py
+src/your-project/*.js
+assets/js/your-project/main.js
+assets/html/your-project/index.html
+
+[var] # Static Assets (Tree only, excluded from Merge)
+data/your-project/**
+assets/css/your-project/style.css
+
+# --------------------------
+# HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge
+`
     }
 };
 
@@ -74,7 +75,7 @@ let globalProvider;
 let transientFiles = new Set();
 let lastScannedManifest = null;
 
-// --- 2. 树节点与 DND ---
+// 树节点与 DND
 class ManifestItem extends vscode.TreeItem {
     constructor(label, uri, collapsibleState, isFile = false) {
         super(label, collapsibleState);
@@ -104,7 +105,7 @@ class ManifestDnDController {
     }
 }
 
-// --- 3. 核心供应商 ---
+// 视图主类
 class ManifestTreeProvider {
     constructor() {
         this._onDidChangeTreeData = new vscode.EventEmitter();
@@ -162,20 +163,86 @@ class ManifestTreeProvider {
     }
 
     mapToItems(obj, parent, matched) {
-        return Object.keys(obj).sort().map(key => {
-            const data = obj[key], fPath = path.join(parent, key), isFile = !!data._uri;
-            const rel = data._rel || vscode.workspace.asRelativePath(fPath, false).replace(/\\/g, '/');
-            const item = new ManifestItem(key, isFile ? data._uri : vscode.Uri.file(fPath), isFile ? 0 : 1, isFile);
+        // --- 第一步：先遍历生成初步的 Item 数据（不直接 return） ---
+        const itemsData = Object.keys(obj).map(key => {
+            let currentEntry = obj[key];
+            let currentKey = key;
+            let currentPath = path.join(parent, key);
+            let displayLabel = key;
+            let description = '';
+
+            // 拍平深层目录
+            while (this.isFolder(currentEntry)) {
+                const childrenKeys = Object.keys(currentEntry).filter(k => k !== '_uri' && k !== '_rel');
+                if (childrenKeys.length === 1) {
+                    const childKey = childrenKeys[0];
+                    const childEntry = currentEntry[childKey];
+                    if (this.isFolder(childEntry)) {
+                        currentKey = path.join(currentKey, childKey).replace(/\\/g, '/');
+                        currentPath = path.join(currentPath, childKey);
+                        currentEntry = childEntry;
+                        displayLabel = currentKey;
+                    } else {
+                        const relativeDir = path.relative(parent, currentPath).replace(/\\/g, '/');
+                        currentEntry = childEntry;
+                        currentKey = childKey;
+                        currentPath = path.join(currentPath, childKey);
+                        displayLabel = childKey;
+                        description = relativeDir ? `(${relativeDir})` : '';
+                        break;
+                    }
+                } else { break; }
+            }
+
+            const isFile = !!currentEntry._uri;
+            return { currentData: currentEntry, currentPath, displayLabel, displayDescription: description, isFile };
+        });
+
+        // 排序
+        itemsData.sort((a, b) => {
+            // 文件夹优先（最终拍平后）
+            if (a.isFile !== b.isFile) return a.isFile ? 1 : -1;        
+            // 再按 stem 排序
+            return a.displayLabel.localeCompare(b.displayLabel, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        // 构建 ManifestItem
+        return itemsData.map(data => {
+            const { currentData, currentPath, displayLabel, displayDescription, isFile } = data;
+            
+            // 递归处理子项获取数量
+            let children = [];
+            let collapsibleState = isFile ? 0 : 1;
+            if (!isFile) {
+                children = this.mapToItems(currentData, currentPath, matched);
+                if (children.length > 0 && children.length < 10) collapsibleState = 2;
+            }
+
+            const item = new ManifestItem(
+                displayLabel,
+                isFile ? currentData._uri : vscode.Uri.file(currentPath),
+                collapsibleState,
+                isFile
+            );
+
+            // description + “未收录”状态
+            const rel = currentData._rel || vscode.workspace.asRelativePath(currentPath, false).replace(/\\/g, '/');
+            item.description = displayDescription;
+            
             if (!matched.has(rel) && !rel.includes('MANIFEST.')) {
-                item.description = t('unmatched');
-                item.tooltip = t('tooltip');
+                const statusText = t('unmatched');
+                item.description = item.description ? `${item.description} ${statusText}` : statusText;
                 item.contextValue = isFile ? 'unmatchedFile' : 'unmatchedFolder';
                 item.iconPath = new vscode.ThemeIcon('question', new vscode.ThemeColor('charts.orange'));
             }
-            if (!isFile) item.children = this.mapToItems(data, fPath, matched);
+
+            if (!isFile) item.children = children;
             return item;
         });
     }
+
+    isFolder = entry => entry && typeof entry === 'object' && !entry._uri;
+    
 }
 
 // --- 4. 辅助逻辑 ---
@@ -229,6 +296,9 @@ function activate(context) {
     const scan = async (editor) => {
         if (!editor) return;
         lastScannedManifest = await findManifest(path.dirname(editor.document.uri.fsPath));
+        if(lastScannedManifest && lastScannedManifest !== provider.currentManifestPath){
+            vscode.commands.executeCommand('virtual-project-manifest.refresh');
+        }
     };
 
     context.subscriptions.push(
