@@ -1,23 +1,23 @@
 {
-	"name": "virtual-project-manifest",
+	"name": "sub-project-focus",
 	"displayName": "%plugin.displayName%",
-	"description": "A manifest-based virtual project view with transient file tracking and LLM-ready merging.",
-	"version": "3.1.4",
+	"description": "A manifest-based sub project view with transient file tracking and LLM-ready merging.",
+	"version": "3.1.5",
 	"icon": "icon.png",
 	"publisher": "forest-devil",
-	"repository": "github:forst-devil/vscode-virtual-project-manifest",
+	"repository": "github:forst-devil/vscode-sub-project-focus",
 	"main": "./extension.js",
 	"engines": {
 		"vscode": "^1.70.0"
 	},
 	"activationEvents": [
-		"onView:manifest-explorer"
+		"onView:sub-project-explorer"
 	],
 	"contributes": {
 		"views": {
 			"explorer": [
 				{
-					"id": "manifest-explorer",
+					"id": "sub-project-explorer",
 					"name": "%view.name%",
 					"dragAndDropController": true
 				}
@@ -25,25 +25,25 @@
 		},
 		"commands": [
 			{
-				"command": "virtual-project-manifest.refresh",
+				"command": "sub-project-focus.refresh",
 				"title": "%command.refresh%",
 				"icon": "$(refresh)",
 				"category": "%view.name%"
 			},
 			{
-				"command": "virtual-project-manifest.merge",
+				"command": "sub-project-focus.merge",
 				"title": "%command.merge%",
 				"icon": "$(combine)",
 				"category": "%view.name%"
 			},
 			{
-				"command": "virtual-project-manifest.add",
+				"command": "sub-project-focus.add",
 				"title": "%command.add%",
 				"icon": "$(add)",
 				"category": "%view.name%"
 			},
 			{
-				"command": "virtual-project-manifest.init",
+				"command": "sub-project-focus.init",
 				"title": "%command.init%",
 				"icon": "$(file-add)",
 				"category": "%view.name%"
@@ -52,19 +52,19 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "virtual-project-manifest.refresh",
+					"command": "sub-project-focus.refresh",
 					"group": "navigation@1",
-					"when": "view == manifest-explorer"
+					"when": "view == sub-project-explorer"
 				},
 				{
-					"command": "virtual-project-manifest.merge",
+					"command": "sub-project-focus.merge",
 					"group": "navigation@2",
-					"when": "view == manifest-explorer"
+					"when": "view == sub-project-explorer"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "virtual-project-manifest.add",
+					"command": "sub-project-focus.add",
 					"when": "(viewItem == unmatchedFile || viewItem == unmatchedFolder)",
 					"group": "navigation@3"
 				}
