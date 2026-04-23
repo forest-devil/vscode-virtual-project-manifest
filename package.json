@@ -1,11 +1,11 @@
 {
-	"name": "sub-project-focus",
+	"name": "sub-project-mgr",
 	"displayName": "%plugin.displayName%",
 	"description": "A manifest-based sub project view with transient file tracking and LLM-ready merging.",
-	"version": "3.1.5",
+	"version": "4.0.0",
 	"icon": "icon.png",
 	"publisher": "forest-devil",
-	"repository": "github:forst-devil/vscode-sub-project-focus",
+	"repository": "github:forst-devil/vscode-sub-project-mgr",
 	"main": "./extension.js",
 	"engines": {
 		"vscode": "^1.70.0"
@@ -25,25 +25,25 @@
 		},
 		"commands": [
 			{
-				"command": "sub-project-focus.refresh",
+				"command": "sub-project-mgr.refresh",
 				"title": "%command.refresh%",
 				"icon": "$(refresh)",
 				"category": "%view.name%"
 			},
 			{
-				"command": "sub-project-focus.merge",
+				"command": "sub-project-mgr.merge",
 				"title": "%command.merge%",
 				"icon": "$(combine)",
 				"category": "%view.name%"
 			},
 			{
-				"command": "sub-project-focus.add",
+				"command": "sub-project-mgr.add",
 				"title": "%command.add%",
 				"icon": "$(add)",
 				"category": "%view.name%"
 			},
 			{
-				"command": "sub-project-focus.init",
+				"command": "sub-project-mgr.init",
 				"title": "%command.init%",
 				"icon": "$(file-add)",
 				"category": "%view.name%"
@@ -52,19 +52,19 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "sub-project-focus.refresh",
+					"command": "sub-project-mgr.refresh",
 					"group": "navigation@1",
 					"when": "view == sub-project-explorer"
 				},
 				{
-					"command": "sub-project-focus.merge",
+					"command": "sub-project-mgr.merge",
 					"group": "navigation@2",
 					"when": "view == sub-project-explorer"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "sub-project-focus.add",
+					"command": "sub-project-mgr.add",
 					"when": "(viewItem == unmatchedFile || viewItem == unmatchedFolder)",
 					"group": "navigation@3"
 				}

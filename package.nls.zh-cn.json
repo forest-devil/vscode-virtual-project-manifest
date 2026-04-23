@@ -1,9 +1,9 @@
 {
-    "plugin.displayName": "子项目聚焦",
+    "plugin.displayName": "子项目管理器 重制版",
     "command.refresh": "刷新",
-    "command.merge": "合并工程文件 (供AI)",
-    "command.add": "添加到清单",
+    "command.merge": "合并项目文本 (供AI)",
+    "command.add": "添加到子项目",
     "command.rename": "重命名",
-    "command.init": "初始化清单",
+    "command.init": "初始化子项目",
     "view.name": "子项目"
 }

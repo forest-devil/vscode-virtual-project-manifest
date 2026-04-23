@@ -1,8 +1,8 @@
 {
-    "plugin.displayName": "Sub Project Focus",
+    "plugin.displayName": "Sub Project Manager REMASTERED",
     "command.refresh": "Refresh View",
     "command.merge": "Merge Files (LLM Ready)",
-    "command.add": "Add to Project Manifest",
-    "command.init": "Initialize Project Manifest",
+    "command.add": "Add to Sub Project",
+    "command.init": "Initialize Sub Project",
     "view.name": "Sub Project"
 }

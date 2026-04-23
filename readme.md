@@ -1,10 +1,10 @@
-# Sub Project Focus
+# Sub Project Manager REMASTERD
 
-[中文](readme.zh-cn.md)
+[中文](https://github.com/forest-devil/vscode-sub-project-mgr/blob/main/readme.zh-cn.md)
 
-## **Virtual Sub-project Management Based on `MANIFEST.lst`**
+## **Sub-project Management Based on `MANIFEST.lst`**
 
-This tool enables virtual sub-project management via `MANIFEST.lst` manifest files. It is designed to eliminate development interference when multiple sub-projects coexist within a large repository and provides a "one-click," ordered code merging feature optimized for LLMs (such as ChatGPT and Claude).
+This tool enables sub-project management via `MANIFEST.lst` manifest files. It is designed to eliminate development interference when multiple sub-projects coexist within a large repository and provides a "one-click," ordered code merging feature optimized for LLMs (such as ChatGPT and Claude).
 
 ## **Key Features**
 
@@ -27,24 +27,24 @@ Create a file named `MANIFEST.lst` in your sub-project root directory using the 
 > 3. Files grouped under `[var]` will appear in the navigation bar for reference but will **not** be included in the merged result.
 
 ```ini
-# [Sub Project Name]
+# [Your Project Name]
 # --------------------------
-
 # [Tag] labels are inherited until the next [Tag].
 # Tip: Use /** or /**/* to ensure all items in directories are included.
 
 [doc] # Documentation
 README.md
-docs/your-project/**/*.md
+docs/your-project/**/*.md   # the rest docs go here
 
 [src] # Source Code
-src/**/*.py
-src/**/*.js
+src/your-project/*.py
+src/your-project/*.js
+assets/js/your-project/main.js
+assets/html/your-project/index.html
 
-[var] # Static Assets (Tree view only, excluded from Merge)
+[var] # Static Assets (Tree only, excluded from Merge)
 data/your-project/**
-assets/css/your-project/**
-
+assets/css/your-project/style.css
 
 # --------------------------
 # HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge

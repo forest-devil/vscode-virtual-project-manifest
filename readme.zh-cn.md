@@ -1,8 +1,8 @@
-# 子项目聚焦 (Sub Project Focus)
+# 子项目聚焦重制版
 
-[English](readme.md)
+[English](https://github.com/forest-devil/vscode-sub-project-mgr/)
 
-基于 `MANIFEST.lst` 清单文件的虚拟子项目管理。旨在解决大项目中多个子项目并存时的开发干扰问题，并为 LLM（如 ChatGPT, Claude）提供一键式、有序的代码合并功能。
+基于 `MANIFEST.lst` 清单文件的子项目管理。旨在解决大项目中多个子项目并存时的开发干扰问题，并为 LLM（如 ChatGPT, Claude）提供一键式、有序的代码合并功能。
 
 ## 功能
 
@@ -19,23 +19,24 @@
 3. `[var]`组的文件只会显示在导航栏中，不会参与代码合并
 
 ```ini
-# [Sub Project Name]
-# --------------------------
+# [Your Project Name]
+--------------------------
 # [标签] 具有继承性，直到遇到下一个 [标签] 为止。
 # 提示：对于目录，应使用 /** 或 /**/* 结尾以确保在虚拟视图中显示完整层级。
 
 [doc] # 项目文档及指南
-README.md
-docs/your-project/**/*.md
+docs/your-project/README.md
+docs/your-project/**/*.md   # 其他文档排在最后
 
 [src] # 核心源代码
-src/**/*.py
-src/**/*.js
-assets/js/your-main-script.js
+src/your-project/*.py
+src/your-project/*.js
+assets/js/your-project/main.js
+assets/html/your-project/index.html
 
 [var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)
 data/your-project/**
-assets/css/your-project/**
+assets/css/your-project/style.css
 
 # --------------------------
 # 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。
