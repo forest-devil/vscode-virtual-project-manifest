@@ -1,0 +1,21 @@
+# [My Project Name]
+# --------------------------
+# [Tag] will last until the next [Tag] is reached.
+# Tip: Use /** or /**/* to ensure all items in directories are included.
+
+[doc] # Documentation
+docs/my-project/README.md
+docs/my-project/**/*.md   # the rest docs go here
+
+[src] # Source Code
+src/my-project/*.py
+src/my-project/*.js
+assets/js/my-project/main.js
+assets/html/my-project/index.html
+
+[var] # Dynamic Data/Binary Files/Static Assets (Tree only, excluded from Merge)
+data/my-project/**
+assets/css/my-project/style.css
+
+# --------------------------
+# HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge

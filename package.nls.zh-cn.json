@@ -5,5 +5,6 @@
     "command.add": "添加到子项目",
     "command.rename": "重命名",
     "command.init": "初始化子项目",
+    "command.selectProject": "选择子项目",
     "view.name": "子项目"
 }

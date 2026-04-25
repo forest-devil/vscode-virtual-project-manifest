@@ -27,24 +27,24 @@ Create a file named `MANIFEST.lst` in your sub-project root directory using the 
 > 3. Files grouped under `[var]` will appear in the navigation bar for reference but will **not** be included in the merged result.
 
 ```ini
-# [Your Project Name]
+# [My Project Name]
 # --------------------------
-# [Tag] labels are inherited until the next [Tag].
+# [Tag] will last until the next [Tag] is reached.
 # Tip: Use /** or /**/* to ensure all items in directories are included.
 
 [doc] # Documentation
-README.md
-docs/your-project/**/*.md   # the rest docs go here
+docs/my-project/README.md
+docs/my-project/**/*.md   # the rest docs go here
 
 [src] # Source Code
-src/your-project/*.py
-src/your-project/*.js
-assets/js/your-project/main.js
-assets/html/your-project/index.html
+src/my-project/*.py
+src/my-project/*.js
+assets/js/my-project/main.js
+assets/html/my-project/index.html
 
-[var] # Static Assets (Tree only, excluded from Merge)
-data/your-project/**
-assets/css/your-project/style.css
+[var] # Dynamic Data/Binary Files/Static Assets (Tree only, excluded from Merge)
+data/my-project/**
+assets/css/my-project/style.css
 
 # --------------------------
 # HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge

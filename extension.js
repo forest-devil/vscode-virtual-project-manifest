@@ -1,6 +1,6 @@
-const vscode = require('vscode');
-const fs = require('fs');
-const path = require('path');
+import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // 多语言（含文件模板）
 const lang = vscode.env.language;
@@ -10,58 +10,18 @@ const strings = {
         'unmatched': '⚠️ 未收录',
         'tooltip': '不在清单中，合并时将被忽略',
         'add_ok': '已添加 {0} 到清单',
-        'switched': '已切换到项目: {0}',
-        'template': `# [Your Project Name]
---------------------------
-# [标签] 具有继承性，直到遇到下一个 [标签] 为止。
-# 提示：对于目录，应使用 /** 或 /**/* 结尾以确保在虚拟视图中显示完整层级。
-
-[doc] # 项目文档及指南
-docs/your-project/README.md
-docs/your-project/**/*.md   # 其他文档排在最后
-
-[src] # 核心源代码
-src/your-project/*.py
-src/your-project/*.js
-assets/js/your-project/main.js
-assets/html/your-project/index.html
-
-[var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)
-data/your-project/**
-assets/css/your-project/style.css
-
-# --------------------------
-# 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。
-`
+        'untitled_project': '(未命名项目)',
+        'select_project': '选择子项目',
+        'switched': '已切换到: {0}',
     },
     'en': {
         'not_found': 'MANIFEST.lst not found (Click to Init)',
         'unmatched': '⚠️ untracked',
         'tooltip': 'Not in manifest, ignored during merge',
         'add_ok': 'Added {0} to manifest',
+        'untitled_project': '(Untitled Project)',
+        'select_project': 'Select Sub Project',
         'switched': 'Switched to: {0}',
-        'template': `# [Your Project Name]
-# --------------------------
-# [Tag] labels are inherited until the next [Tag].
-# Tip: Use /** or /**/* to ensure all items in directories are included.
-
-[doc] # Documentation
-README.md
-docs/your-project/**/*.md   # the rest docs go here
-
-[src] # Source Code
-src/your-project/*.py
-src/your-project/*.js
-assets/js/your-project/main.js
-assets/html/your-project/index.html
-
-[var] # Static Assets (Tree only, excluded from Merge)
-data/your-project/**
-assets/css/your-project/style.css
-
-# --------------------------
-# HINT：MANIFEST.lst and MANIFEST.merged.md will be excluded from merge
-`
     }
 };
 
@@ -75,6 +35,12 @@ function t(key, ...args) {
     let s = (strings[lang] || strings['en'])[key] || key;
     args.forEach((v, i) => s = s.replace(`{${i}}`, v));
     return s;
+}
+
+function getTemplateUri(context){
+    const fileName = lang === 'en' ? 'MANIFEST.template.lst' : `MANIFEST.template.${lang}.lst`;
+    const fileUri = vscode.Uri.joinPath(context.extensionUri, 'resources', fileName);
+    return fileUri;
 }
 
 function log(...args) {
@@ -133,8 +99,7 @@ class ManifestTreeProvider {
 
     async getChildren(element) {
         if (!this.currentManifestUri) {
-            const editor = vscode.window.activeTextEditor;
-            this.currentManifestUri = await findManifestInParents(editor ? editor.document.uri : null);
+            this.currentManifestUri = await getParentManifest();
         }
         if (!this.currentManifestUri) {
             const item = new vscode.TreeItem(t('not_found'));
@@ -266,15 +231,17 @@ class ManifestTreeProvider {
 
 /**
  * 快速查找 Manifest 文件（仅向上搜索父目录）
- * @param {vscode.Uri} uri 
  * @returns {Promise<vscode.Uri | null>} Manifest URI or null
  */
-async function findManifestInParents(uri) {
-    if (path.basename(uri.fsPath) === MANIFEST_FILE) return uri;
+async function getParentManifest() {
+    const doc = vscode.window.activeTextEditor?.document;
+    if (!doc || !doc.uri.fsPath) return null;
+    if (path.basename(doc.uri.fsPath) === MANIFEST_FILE) return doc.uri;
 
-    let dirUri = uri;
-    if (uri.fsPath && fs.statSync(uri.fsPath).isFile()) {
-        dirUri = vscode.Uri.joinPath(uri, '..');
+    let dirUri = doc.uri;
+
+    if (fs.statSync(doc.uri.fsPath).isFile()) {
+        dirUri = vscode.Uri.joinPath(doc.uri, '..');
     }
 
     const workspaceFolder = vscode.workspace.getWorkspaceFolder(dirUri);
@@ -293,13 +260,39 @@ async function findManifestInParents(uri) {
     return null;
 }
 
+
+/**
+ * 查找包含该文件的 Manifest 文件
+ * @returns {Promise<vscode.Uri | null>} 包含该文件的 Manifest URI 或 null
+ */
+async function getOwnerManifest() {
+    const doc = vscode.window.activeTextEditor?.document;
+    if (!doc || !doc.uri.fsPath) return null;
+
+    const manifests = await getAllManifests();
+    for (const m of manifests) {    
+        const folder = vscode.workspace.getWorkspaceFolder(m);
+        const { viewPatterns } = await parseManifest(m);
+        for (const p of viewPatterns) {
+            const relPattern  = new vscode.RelativePattern(folder, p);
+            const score = vscode.languages.match({
+                pattern: relPattern
+            }, doc);
+            if(score > 0) return m
+        }        
+    }
+    return null;
+}
+
 /**
  * 查找所有 Manifest 文件
- * @param {vscode.Uri} uri 基准 URI（用于确定所属的工作区）
  * @returns {Promise<vscode.Uri[]>} Manifest URI 数组
  */
-async function findAllManifests(uri) {
-    const folder = uri ? vscode.workspace.getWorkspaceFolder(uri) : vscode.workspace.workspaceFolders?.[0];
+async function getAllManifests() {
+    const doc = vscode.window.activeTextEditor?.document;
+    if (!doc || !doc.uri.fsPath) return null;
+
+    const folder = doc.uri ? vscode.workspace.getWorkspaceFolder(doc.uri) : vscode.workspace.workspaceFolders?.[0];
     if (!folder) return [];
 
     const pattern = new vscode.RelativePattern(folder, `**/${MANIFEST_FILE}`); 
@@ -315,6 +308,7 @@ async function parseManifest(uri) {
     const content = fs.readFileSync(uri.fsPath, 'utf-8');
     const lines = content.split(/\r?\n/);
     let viewPatterns = [], mergeFiles = [], currentTag = "";
+
     lines.forEach(l => {
         const clean = l.split(/[#;].*$/)[0].trim();
         const tagM = clean.match(/^\[(.*?)\]/);
@@ -329,36 +323,21 @@ async function parseManifest(uri) {
 }
 
 /**
- * 检查文件是否在 Manifest 中
- * @param {vscode.Uri} fileUri 
- * @param {vscode.Uri} manifestUri 
- * @returns {Promise<boolean>}
+ * 读取 Manifest 首行，匹配模式: # [Project Name]
+ * @param {vscode.uri} uri 
+ * @returns 
  */
-async function isFileInManifest(fileUri, manifestUri) {
-    if (!manifestUri) return false;
-    const { viewPatterns } = await parseManifest(manifestUri);
-    const folder = vscode.workspace.getWorkspaceFolder(manifestUri);
-    if (!folder) return false;
+function getProjectName(uri) {
+    const content = fs.readFileSync(uri.fsPath, 'utf-8');
+    const lines = content.split(/\r?\n/);
+    if(lines.length < 1) return null;
 
-    for (const p of viewPatterns) {
-        const pattern = new vscode.RelativePattern(folder, p); 
-        const found = await vscode.workspace.findFiles(pattern);
-        if (found.some(u => u.fsPath === fileUri.fsPath)) return true;
+    const match = lines[0].match(/^\s*# \[(.*?)\]\s*$/);
+    if (match) {
+        return match[1];
+    } else {
+        return null;
     }
-    return false;
-}
-
-/**
- * 查找包含该文件的 Manifest 文件
- * @param {vscode.Uri} uri 
- * @returns {Promise<vscode.Uri | null>} 包含该文件的 Manifest URI 或 null
- */
-async function findContainingManifest(uri) {
-    const manifests = await findAllManifests(uri);
-    for (const m of manifests) {
-        if (await isFileInManifest(uri, m)) return m;
-    }
-    return null;
 }
 
 // 激活插件
@@ -382,12 +361,11 @@ async function activate(context) {
         treeViewInstance.reveal(undefined); // 可选：刷新一下位置
     }
 
-    const scan = async (uri) => {
-        if (!uri) return;
+    const scan = async () => {
         if (provider.currentManifestUri){
-            matchedManifest = await findManifestInParents(uri);
+            matchedManifest = await getParentManifest();
         } else {
-            matchedManifest = await findContainingManifest(uri);
+            matchedManifest = await getOwnerManifest();
         }
         if(matchedManifest && matchedManifest.fsPath !== provider.currentManifestUri?.fsPath){
             vscode.commands.executeCommand(`${NAMESPACE}.refresh`);
@@ -395,12 +373,12 @@ async function activate(context) {
     };
 
     context.subscriptions.push(
-        vscode.window.onDidChangeActiveTextEditor(e => scan(e?.document.uri)),
+        vscode.window.onDidChangeActiveTextEditor(e => scan()),
         
         treeViewInstance.onDidChangeSelection(async (e) => {
             if (e.selection.length > 0) {
                 const selectedItem = e.selection[0];
-                await scan(selectedItem.resourceUri);
+                await scan();
             }
         }),
 
@@ -410,8 +388,8 @@ async function activate(context) {
         vscode.commands.registerCommand(`${NAMESPACE}.refresh`, () => {
             provider.currentManifestUri = matchedManifest;
             const workingUri = matchedManifest || vscode.window.activeTextEditor?.document.uri;
-            const projectName = workingUri ? path.basename(path.dirname(workingUri.fsPath)) : '';
-            treeViewInstance.description = projectName; 
+            const projectFolder = workingUri ? path.basename(path.dirname(workingUri.fsPath)) : '';
+            treeViewInstance.description = projectFolder; 
             provider.refresh();
         }),
 
@@ -429,7 +407,9 @@ async function activate(context) {
             }
             const manifestUri = vscode.Uri.joinPath(targetUri, MANIFEST_FILE);
             if (!fs.existsSync(manifestUri.fsPath)) {
-                fs.writeFileSync(manifestUri.fsPath, t('template'), 'utf-8');
+                const tUri = getTemplateUri(context);
+                const data = await vscode.workspace.fs.readFile(tUri);
+                await vscode.workspace.fs.writeFile(manifestUri, data);
             }
             provider.currentManifestUri = manifestUri;
             const doc = await vscode.workspace.openTextDocument(manifestUri);
@@ -438,9 +418,15 @@ async function activate(context) {
         }),
 
         vscode.commands.registerCommand(`${NAMESPACE}.add`, async (item) => {
+            if(!fs.statSync(item.resourceUri.fsPath).isFile()) return;
+            vscode.commands.executeCommand('vscode.open', item.resourceUri);
             const rel = vscode.workspace.asRelativePath(item.resourceUri, false).replace(/\\/g, '/');
-            const mUri = await findManifestInParents(item.resourceUri);
-            if (mUri) { fs.appendFileSync(mUri.fsPath, `\n${rel}`); transientFiles.delete(item.resourceUri); provider.refresh(); }
+            const mUri = await getParentManifest();
+            if (mUri) { 
+                fs.appendFileSync(mUri.fsPath, `\n${rel}`);
+                transientFiles.delete(item.resourceUri); 
+                provider.refresh(); 
+            }
         }),
 
         vscode.commands.registerCommand(`${NAMESPACE}.merge`, async () => {
@@ -452,24 +438,49 @@ async function activate(context) {
                 const uris = await vscode.workspace.findFiles(f.pattern);
                 for (const u of uris) {
                     if (u.fsPath === provider.currentManifestUri.fsPath || u.fsPath === targetUri.fsPath || seen.has(u.fsPath)) continue;
-                    out += `## ${f.tag} ${vscode.workspace.asRelativePath(u, false)}\n\n\`\`\`\`\`\`${path.extname(u.fsPath).slice(1)}\n${fs.readFileSync(u.fsPath, 'utf-8')}\n\`\`\`\`\`\`\n\n`;
+                    out += `## ${f.tag} ${vscode.workspace.asRelativePath(u, false)}\n\n\`\`\`\`\`\`\`\`\`${path.extname(u.fsPath).slice(1)}\n${fs.readFileSync(u.fsPath, 'utf-8')}\n\`\`\`\`\`\`\`\`\`\n\n`;
                     seen.add(u.fsPath);
                 }
             }
             fs.writeFileSync(targetUri.fsPath, out);
             vscode.window.showTextDocument(await vscode.workspace.openTextDocument(targetUri));
-        })
+        }),
+
+        vscode.commands.registerCommand(`${NAMESPACE}.selectProject`, async () => {
+            const quickPick = vscode.window.createQuickPick();
+
+            const manifests = await getAllManifests();
+            quickPick.items = manifests.map(m => ({                
+                label: getProjectName(m) || t('untitled_project'),
+                resourceUri: m
+            }));
+
+            quickPick.placeholder = t('select_project');
+            
+            if (provider.currentManifestUri) {
+                const currentItem = quickPick.items.find(i => String(i.resourceUri) === String(provider.currentManifestUri));
+                if (currentItem) quickPick.activeItems = [currentItem];
+            };
+
+            quickPick.onDidAccept(() => {
+                const selection = quickPick.selectedItems[0];
+                if (selection) {
+                    matchedManifest = selection.resourceUri;
+                    vscode.commands.executeCommand(`${NAMESPACE}.refresh`);
+                }
+                quickPick.hide();
+            });
+
+            quickPick.onDidHide(() => {quickPick.dispose();});
+            quickPick.show();
+        }),
     );
 
-    const currentUri = vscode.window.activeTextEditor?.document.uri;
-    if (currentUri) {
-        const manifestUri = await findContainingManifest(currentUri);
-        log('Matched:', manifestUri?.fsPath);
-        if (manifestUri) {
-            matchedManifest = manifestUri;
-            vscode.commands.executeCommand(`${NAMESPACE}.refresh`);
-        }
+    const mUri = await getOwnerManifest();
+    if (mUri) {
+        matchedManifest = mUri;
+        vscode.commands.executeCommand(`${NAMESPACE}.refresh`);
     }
 }
 
-module.exports = { activate };
+export { activate };

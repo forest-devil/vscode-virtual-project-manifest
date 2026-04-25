@@ -1,8 +1,9 @@
 {
+	"type": "module",
 	"name": "sub-project-mgr",
 	"displayName": "%plugin.displayName%",
 	"description": "A manifest-based sub project view with transient file tracking and LLM-ready merging.",
-	"version": "4.0.0",
+	"version": "4.0.4",
 	"icon": "icon.png",
 	"publisher": "forest-devil",
 	"repository": "github:forst-devil/vscode-sub-project-mgr",
@@ -47,6 +48,12 @@
 				"title": "%command.init%",
 				"icon": "$(file-add)",
 				"category": "%view.name%"
+			},
+			{
+				"command": "sub-project-mgr.selectProject",
+				"title": "%command.selectProject%",
+				"icon": "$(triangle-down)",
+				"category": "%view.name%"
 			}
 		],
 		"menus": {
@@ -59,6 +66,11 @@
 				{
 					"command": "sub-project-mgr.merge",
 					"group": "navigation@2",
+					"when": "view == sub-project-explorer"
+				},
+				{
+					"command": "sub-project-mgr.selectProject",
+					"group": "navigation@3",
 					"when": "view == sub-project-explorer"
 				}
 			],

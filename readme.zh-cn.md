@@ -19,24 +19,24 @@
 3. `[var]`组的文件只会显示在导航栏中，不会参与代码合并
 
 ```ini
-# [Your Project Name]
+# [项目名称]
 --------------------------
-# [标签] 具有继承性，直到遇到下一个 [标签] 为止。
+# [标签] 的作用范围会持续到下一个 [标签] 为止。
 # 提示：对于目录，应使用 /** 或 /**/* 结尾以确保在虚拟视图中显示完整层级。
 
 [doc] # 项目文档及指南
-docs/your-project/README.md
-docs/your-project/**/*.md   # 其他文档排在最后
+docs/my-project/README.md
+docs/my-project/**/*.md   # 其他文档排在最后
 
 [src] # 核心源代码
-src/your-project/*.py
-src/your-project/*.js
-assets/js/your-project/main.js
-assets/html/your-project/index.html
+src/my-project/*.py
+src/my-project/*.js
+assets/js/my-project/main.js
+assets/html/my-project/index.html
 
-[var] # 动态数据/静态资源 (仅在左侧视图显示，不参与代码合并)
-data/your-project/**
-assets/css/your-project/style.css
+[var] # 动态数据/二进制文件/静态资源 (仅在目录树显示，不参与代码合并)
+data/my-project/**
+assets/css/my-project/style.css
 
 # --------------------------
 # 提示：MANIFEST.lst 和 MANIFEST.merged.md 会自动显示并从合并中排除。

@@ -4,5 +4,6 @@
     "command.merge": "Merge Files (LLM Ready)",
     "command.add": "Add to Sub Project",
     "command.init": "Initialize Sub Project",
+    "command.selectProject": "Select Sub Project",
     "view.name": "Sub Project"
 }
