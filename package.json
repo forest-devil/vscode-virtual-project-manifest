@@ -3,10 +3,10 @@
 	"name": "sub-project-mgr",
 	"displayName": "%plugin.displayName%",
 	"description": "A manifest-based sub project view with transient file tracking and LLM-ready merging.",
-	"version": "4.0.4",
+	"version": "4.0.5",
 	"icon": "icon.png",
 	"publisher": "forest-devil",
-	"repository": "github:forst-devil/vscode-sub-project-mgr",
+	"repository": "github:forest-devil/vscode-sub-project-mgr",
 	"main": "./extension.js",
 	"engines": {
 		"vscode": "^1.70.0"
